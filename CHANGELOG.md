@@ -1,3 +1,8 @@
+## 1.3.2
+- Added ability to mount volumes for `startPostgres` ([#3][] by [osaxma][]).
+
+[#3]: https://github.com/isoos/docker_process/pull/3
+
 ## 1.3.1
 
 - Added new optional parameters to `startPostgres` ([#2][] by [osaxma][]):

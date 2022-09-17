@@ -13,6 +13,10 @@ export 'package:docker_process/docker_process.dart';
 /// item in the list must contain the parameter and its assignment in as a single
 /// item.
 ///
+/// Use [volumes] to pass a list of volumes that should be mounted to the container.
+/// Each entry in the list should contain a valid value for the `-v` docker's argument.
+/// For instance: `['/custom/mount:/var/lib/postgresql/data']` contains a single entry.
+///
 /// For other options, please refer to [DockerProcess.start].
 Future<DockerProcess> startPostgres({
   required String name,
@@ -27,11 +31,19 @@ Future<DockerProcess> startPostgres({
   String? postgresqlConfPath,
   String? pgHbaConfPath,
   List<String>? configurations,
+  List<String>? volumes,
 }) async {
   var ipv4 = false;
 
   final dockerArgs = <String>[];
   final imageArgs = <String>[];
+
+  if (volumes != null) {
+    for (var volume in volumes) {
+      dockerArgs.add('-v');
+      dockerArgs.add(volume);
+    }
+  }
 
   if (configurations != null) {
     for (var config in configurations) {
@@ -69,8 +81,7 @@ Future<DockerProcess> startPostgres({
     cleanup: cleanup,
     readySignal: (line) {
       ipv4 |= line.contains('listening on IPv4 address "0.0.0.0", port 5432');
-      return ipv4 &&
-          line.contains('database system is ready to accept connections');
+      return ipv4 && line.contains('database system is ready to accept connections');
     },
     environment: {
       if (pgUser != null) 'POSTGRES_USER': pgUser,
